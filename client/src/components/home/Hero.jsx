@@ -142,7 +142,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="absolute bottom-4 -right-4 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl border border-transparent dark:border-zinc-800 transition-all">
+           className="static lg:absolute lg:mt-6 lg:bottom-4 lg:-right-4 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl border border-transparent dark:border-zinc-800 transition-all">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
                 <Car className="text-orange-500 w-8 h-8" />
