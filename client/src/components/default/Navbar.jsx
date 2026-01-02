@@ -9,6 +9,7 @@ import {
   LogOut,
   Car,
   ChevronDown,
+  User,
 } from "lucide-react";
 import { auth } from "../Auth/Firebase.js";
 import { signOut } from "firebase/auth";
@@ -129,6 +130,13 @@ const Navbar = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 rounded-lg shadow-lg py-2 border border-gray-100 dark:border-zinc-800">
+                        <Link
+                          to="/profile"
+                          onClick={() => setDropdownOpen(false)}
+                          className="w-full px-4 py-2 text-left text-gray-700 dark:text-zinc-300 hover:bg-orange-50 dark:hover:bg-zinc-800 hover:text-orange-500 transition-colors flex items-center space-x-2">
+                          <User className="w-4 h-4" />
+                          <span>Profile</span>
+                        </Link>
                         <button
                           onClick={handleLogout}
                           className="w-full px-4 py-2 text-left text-gray-700 dark:text-zinc-300 hover:bg-orange-50 dark:hover:bg-zinc-800 hover:text-orange-500 transition-colors flex items-center space-x-2">

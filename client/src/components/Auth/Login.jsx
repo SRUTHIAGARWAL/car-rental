@@ -39,7 +39,7 @@ const Login = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        navigate("/booking");
+        navigate("/");
       } else {
         console.log("User is logged out");
       }

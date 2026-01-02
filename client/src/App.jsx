@@ -8,6 +8,7 @@ import Testimonials from "./Pages/Testimonials";
 import Booking from "./Pages/Booking";
 import Team from "./Pages/Team";
 import Contact from "./Pages/Contact";
+import Profile from "./Pages/Profile";
 import Errorpage from "./Pages/Errorpage";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -40,6 +41,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
             <Route path="/learnmore" element={<LearnMore />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Errorpage />} />
             <Route path="/booking/:id" element={<Booking />} />
           </Route>

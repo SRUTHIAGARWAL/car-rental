@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/store';
 
 // Updated cars array with dark mode background variants
 const cars = [
@@ -32,7 +33,10 @@ const cars = [
 
 const CarDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [selectedCar, setSelectedCar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const car = cars.find(car => car.id === parseInt(id));
@@ -53,14 +57,58 @@ const CarDetailPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    //To handle Practical Error
-    if(rentalDetails.pickUpDate>=rentalDetails.dropOffDate){
-      alert("Drop-off date must be after pickup date!");
+    
+    if (!user) {
+      alert('Please log in to make a booking');
+      navigate('/login');
       return;
-    }else{
-      alert("Booking confirmed!");
+    }
+
+    if (rentalDetails.pickUpDate >= rentalDetails.dropOffDate) {
+      alert('Drop-off date must be after pickup date!');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const startDate = new Date(rentalDetails.pickUpDate);
+      const endDate = new Date(rentalDetails.dropOffDate);
+      const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      const totalPrice = days * selectedCar.price;
+
+      const bookingData = {
+        userId: user.uid,
+        carId: selectedCar.id,
+        carName: selectedCar.name,
+        startDate,
+        endDate,
+        location: rentalDetails.location,
+        totalPrice,
+        status: 'Upcoming'
+      };
+
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (response.ok) {
+        alert('Booking confirmed successfully!');
+        navigate('/profile');
+      } else {
+        throw new Error('Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('Failed to create booking. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -173,9 +221,10 @@ const CarDetailPage = () => {
 
               <button
                 type="submit"
-                className="mt-4 w-full py-4 bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition-all transform active:scale-95"
+                disabled={loading}
+                className="mt-4 w-full py-4 bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-500/30 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95"
               >
-                Confirm Booking Now
+                {loading ? 'Processing...' : 'Confirm Booking Now'}
               </button>
             </form>
           </div>
