@@ -3,6 +3,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@tailwind utilities;
+
+/* ===== BUTTON HOVER ENHANCEMENTS ===== */
+button, .btn {
+  transition: all 0.3s ease !important;
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+}
+
+button:active, .btn:active {
+  transform: translateY(-1px) !important;
+}
+
 .html,body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
