@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   Star,
   Quote,
@@ -284,12 +285,28 @@ const Testimonials = () => {
       {/* Call to Action Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <motion.div variants={fadeIn} initial="initial" whileInView="whileInView" className="bg-orange-500 rounded-2xl p-8 md:p-12 text-center text-white shadow-xl shadow-orange-500/20 hover:shadow-2xl transition-all">
+          <motion.div 
+            variants={fadeIn} 
+            initial="initial" 
+            whileInView="whileInView" 
+            className="bg-orange-500 rounded-2xl p-8 md:p-12 text-center text-white shadow-xl shadow-orange-500/20 hover:shadow-2xl transition-all"
+          >
             <h2 className="text-3xl font-bold mb-4">Ready to Experience It Yourself?</h2>
-            <p className="max-w-2xl mx-auto mb-8 text-orange-100 font-medium">Join thousands of satisfied customers and book your perfect rental car today.</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-white dark:bg-zinc-100 text-orange-500 px-8 py-3 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-white transition-all shadow-lg">
-              Book Now
-            </motion.button>
+            <p className="max-w-2xl mx-auto mb-8 text-orange-100 font-medium">
+              Join thousands of satisfied customers and book your perfect rental car today.
+            </p>
+            
+            {/* --- FIX: Wrapped button in Link to /booking --- */}
+            <Link to="/models">
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                className="bg-white dark:bg-zinc-100 text-orange-500 px-8 py-3 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-white transition-all shadow-lg"
+              >
+                Book Now
+              </motion.button>
+            </Link>
+            
           </motion.div>
         </div>
       </section>
