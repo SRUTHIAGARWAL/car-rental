@@ -78,18 +78,23 @@ const Hero = () => {
               <span className="font-bold">Book Ride</span>
               <CheckCircle className="w-5 h-5" />
             </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <div
+              className="inline-block rounded-lg isolate
+              transition-shadow duration-300 ease-out
+              hover:shadow-[0_0_22px_rgba(249,115,22,0.35)]"
+            >
+            <button
               onClick={() => navigate("/learnmore")}
-              className="flex items-center gap-2 px-8 py-4 bg-gray-900 dark:bg-zinc-800 text-white rounded-lg
-                         hover:bg-gray-800 dark:hover:bg-zinc-700 transition-all border border-transparent dark:border-zinc-700 shadow-lg">
-              <span className="font-bold">Learn More</span>
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
+              className="relative flex items-center gap-2 px-8 py-4
+                      rounded-lg bg-gray-900 dark:bg-zinc-800
+                      text-white
+                      border border-transparent dark:border-zinc-700"
+              >
+            <span className="font-bold">Learn More</span>
+            <ChevronRight className="w-5 h-5" />
+            </button>
+            </div>
           </div>
-
           {/* Icon Features Section */}
           <div className="flex flex-wrap gap-6 mb-12">
             {features.map((feature, index) => (
