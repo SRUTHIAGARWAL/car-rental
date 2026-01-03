@@ -72,7 +72,7 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled
+      className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-300 ${scrolled
           ? "bg-white/95 dark:bg-zinc-950/95 backdrop-blur-sm shadow-lg"
           : "bg-transparent"
         }`}>
@@ -148,10 +148,38 @@ const Navbar = () => {
                 </div>
               ) : (
                 <>
-                  <Link to="/login" className="flex items-center space-x-2 text-gray-700 dark:text-zinc-300 hover:text-orange-500 transition-all">
-                    <LogIn className="w-4 h-4" />
-                    <span>Login</span>
-                  </Link>
+                  <motion.div whileHover="hover" initial="rest" animate="rest">
+           <Link
+            to="/login"
+               className="relative flex items-center space-x-2 px-4 py-2 rounded-lg
+               text-gray-700 dark:text-zinc-300 transition-all duration-300"
+                >
+          {/* Glow background */}
+        <motion.span
+            variants={{
+            rest: { opacity: 0 },
+            hover: { opacity: 1 },
+            }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 rounded-lg
+                 bg-orange-500/10 blur-md"
+            />
+
+    {/* Content */}
+          <motion.span
+                variants={{
+                rest: { scale: 1 },
+                hover: { scale: 1.05 },
+              }}
+                className="relative z-10 flex items-center space-x-2
+                           hover:text-orange-500"
+                >
+              <LogIn className="w-4 h-4" />
+                <span>Login</span>
+                </motion.span>
+                </Link>
+              </motion.div>
+
                   <Link to="/register" className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105">
                     <UserPlus className="w-4 h-4" />
                     <span>Sign Up</span>

@@ -78,18 +78,23 @@ const Hero = () => {
               <span className="font-bold">Book Ride</span>
               <CheckCircle className="w-5 h-5" />
             </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <div
+              className="inline-block rounded-lg isolate
+              transition-shadow duration-300 ease-out
+              hover:shadow-[0_0_22px_rgba(249,115,22,0.35)]"
+            >
+            <button
               onClick={() => navigate("/learnmore")}
-              className="flex items-center gap-2 px-8 py-4 bg-gray-900 dark:bg-zinc-800 text-white rounded-lg
-                         hover:bg-gray-800 dark:hover:bg-zinc-700 transition-all border border-transparent dark:border-zinc-700 shadow-lg">
-              <span className="font-bold">Learn More</span>
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
+              className="relative flex items-center gap-2 px-8 py-4
+                      rounded-lg bg-gray-900 dark:bg-zinc-800
+                      text-white
+                      border border-transparent dark:border-zinc-700"
+              >
+            <span className="font-bold">Learn More</span>
+            <ChevronRight className="w-5 h-5" />
+            </button>
+            </div>
           </div>
-
           {/* Icon Features Section */}
           <div className="flex flex-wrap gap-6 mb-12">
             {features.map((feature, index) => (
@@ -142,7 +147,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="absolute bottom-4 -right-4 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl border border-transparent dark:border-zinc-800 transition-all">
+           className="static lg:absolute lg:mt-6 lg:bottom-4 lg:-right-4 bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl border border-transparent dark:border-zinc-800 transition-all">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
                 <Car className="text-orange-500 w-8 h-8" />
