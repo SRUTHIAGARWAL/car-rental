@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 /* =====================================================
-   Cars Data Source (UNCHANGED CONTENT)
+   Cars Data Source
    ===================================================== */
 const cars = [
   {
@@ -56,7 +56,17 @@ const cars = [
 ];
 
 /* =====================================================
-   Helper Utilities (NO behavior change)
+   Tips / Highlights
+   ===================================================== */
+const tips = [
+  { text: "Always check fuel type before booking.", icon: "⛽" },
+  { text: "Pick-up early to avoid traffic delays.", icon: "⏰" },
+  { text: "Inspect car condition before departure.", icon: "🔍" },
+  { text: "Use your preferred navigation app.", icon: "🗺️" },
+];
+
+/* =====================================================
+   Helper Utilities
    ===================================================== */
 const resolveCarById = (collection, id) =>
   collection.find(item => item.id === parseInt(id));
@@ -71,23 +81,20 @@ const isValidDateRange = (start, end) => start < end;
    ===================================================== */
 const CarDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  /* ---------------- State ---------------- */
   const [selectedCar, setSelectedCar] = useState(null);
-
   const [rentalDetails, setRentalDetails] = useState({
     pickUpDate: "",
     dropOffDate: "",
     location: "",
   });
 
-  /* ---------------- Effects ---------------- */
   useEffect(() => {
     const resolved = resolveCarById(cars, id);
     setSelectedCar(resolved);
   }, [id]);
 
-  /* ---------------- Handlers ---------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRentalDetails(prev => ({ ...prev, [name]: value }));
@@ -95,159 +102,116 @@ const CarDetailPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!isValidDateRange(rentalDetails.pickUpDate, rentalDetails.dropOffDate)) {
       alert("Drop-off date must be after pickup date!");
       return;
     }
-
     alert("Booking confirmed!");
   };
 
-  /* ---------------- Derived Data ---------------- */
   const relatedCars = selectedCar
     ? excludeActiveCar(cars, selectedCar.id)
     : [];
 
-  /* =====================================================
-     Render
-     ===================================================== */
   return selectedCar ? (
     <div className="container mx-auto p-6 pt-28 transition-colors duration-300">
 
-      {/* MAIN DETAIL SECTION — EXACT SAME */}
+      {/* ================= MAIN DETAIL SECTION ================= */}
       <div className="flex flex-col md:flex-row md:space-x-10">
         <div className="w-full md:w-1/2 mb-8 md:mb-0">
+          {/* Main Car Image with subtle hover scale and brightness */}
           <img
             src={selectedCar.image}
             alt={selectedCar.name}
-            className="w-full h-80 object-cover rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+            className="w-full h-80 object-cover rounded-xl shadow-md hover:shadow-xl hover:scale-[1.03] hover:brightness-105 transition-all duration-500"
           />
         </div>
 
         <div className="w-full md:w-1/2 bg-white dark:bg-zinc-900 shadow-xl rounded-xl p-8 transition-colors">
-          <h2 className="text-3xl font-bold mb-2">
-            {selectedCar.name}
-          </h2>
-
+          <h2 className="text-3xl font-bold mb-2">{selectedCar.name}</h2>
           <p className="text-xl text-gray-600 dark:text-zinc-400 mb-4">
             {selectedCar.category} —{" "}
-            <span className="text-orange-500 font-bold">
-              ${selectedCar.price}/day
-            </span>
+            <span className="text-orange-500 font-bold">${selectedCar.price}/day</span>
           </p>
 
-             {/* Rating Section */}
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="flex items-center space-x-1">
-                <span className="text-2xl font-semibold text-gray-500 dark:text-zinc-400">{selectedCar.rating}</span>
-                <div className="flex text-sm text-yellow-500">
-                  {[...Array(5)].map((_, index) => (
-                    <svg
-                      key={index}
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill={index < Math.floor(selectedCar.rating) ? "currentColor" : "none"}
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 17.25l-6.403 3.377 1.233-7.264L1.43 7.642l7.361-.734L12 1.5l3.522 5.377 7.361.734-5.733 5.721 1.233 7.264L12 17.25z"
-                      />
-                    </svg>
-                  ))}
-                </div>
-              </div>
-              <span className="text-sm text-gray-500 dark:text-zinc-500">({selectedCar.reviews} reviews)</span>
-            </div>
-
-            {/* Feature Badges */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                <div className="text-xl mb-1">🪑</div>
-                <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.seats} seats</span>
-              </div>
-              <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                <div className="text-xl mb-1">🧳</div>
-                <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.luggage} luggage</span>
-              </div>
-              <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                <div className="text-xl mb-1">⛽</div>
-                <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.fuel} fuel</span>
+          {/* Rating with hover scale effect */}
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="flex items-center space-x-1 hover:scale-105 transition-transform duration-300">
+              <span className="text-2xl font-semibold text-gray-500 dark:text-zinc-400">{selectedCar.rating}</span>
+              <div className="flex text-sm text-yellow-500">
+                {[...Array(5)].map((_, index) => (
+                  <svg key={index} xmlns="http://www.w3.org/2000/svg"
+                    fill={index < Math.floor(selectedCar.rating) ? "currentColor" : "none"}
+                    viewBox="0 0 24 24" stroke="currentColor" className="h-5 w-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                      d="M12 17.25l-6.403 3.377 1.233-7.264L1.43 7.642l7.361-.734L12 1.5l3.522 5.377 7.361.734-5.733 5.721 1.233 7.264L12 17.25z" />
+                  </svg>
+                ))}
               </div>
             </div>
+            <span className="text-sm text-gray-500 dark:text-zinc-500">({selectedCar.reviews} reviews)</span>
+          </div>
 
-            {/* Booking Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Pick-up Date</label>
-                  <input
-                    type="datetime-local"
-                    name="pickUpDate"
-                    value={rentalDetails.pickUpDate}
-                    onChange={handleChange}
-                    className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                    required
-                  />
-                </div>
+          {/* Feature Badges */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <div className="text-xl mb-1">🪑</div>
+              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.seats} seats</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <div className="text-xl mb-1">🧳</div>
+              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.luggage} luggage</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+              <div className="text-xl mb-1">⛽</div>
+              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.fuel} fuel</span>
+            </div>
+          </div>
 
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Drop-off Date</label>
-                  <input
-                    type="datetime-local"
-                    name="dropOffDate"
-                    value={rentalDetails.dropOffDate}
-                    onChange={handleChange}
-                    className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                    required
-                  />
-                </div>
+          {/* Booking Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Pick-up Date</label>
+                <input type="datetime-local" name="pickUpDate" value={rentalDetails.pickUpDate} onChange={handleChange}
+                  className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                  required />
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Pickup Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={rentalDetails.location}
-                  onChange={handleChange}
-                  placeholder="e.g. Airport Terminal 1"
-                  className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                  required
-                />
+                <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Drop-off Date</label>
+                <input type="datetime-local" name="dropOffDate" value={rentalDetails.dropOffDate} onChange={handleChange}
+                  className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                  required />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                className="mt-4 w-full py-4 bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition-all transform active:scale-95"
-              >
-                Confirm Booking Now
-              </button>
-            </form>
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Pickup Location</label>
+              <input type="text" name="location" value={rentalDetails.location} onChange={handleChange}
+                placeholder="e.g. Airport Terminal 1"
+                className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                required />
+            </div>
+
+            <button type="submit"
+              className="mt-4 w-full py-4 bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition-all transform active:scale-95">
+              Confirm Booking Now
+            </button>
+          </form>
         </div>
       </div>
 
-      {/* MORE CARS — NO BORDER, ONLY HOVER */}
+      {/* ================= RELATED CARS ================= */}
       <div className="mt-16">
-        <h3 className="text-2xl font-bold mb-6">
-          More Cars You May Like
-        </h3>
+        <h3 className="text-2xl font-bold mb-6">More Cars You May Like</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {relatedCars.map(car => (
-            <div
-              key={car.id}
-              className="p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-            >
-              <img
-                src={car.image}
-                alt={car.name}
-                className="w-full h-40 object-cover rounded-lg mb-4"
-              />
+            <div key={car.id}
+              onClick={() => navigate(`/booking/${car.id}`)}
+              className="p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all duration-300">
+              <img src={car.image} alt={car.name} className="w-full h-40 object-cover rounded-lg mb-4" />
               <h4 className="font-semibold">{car.name}</h4>
               <p className="text-sm text-gray-500">{car.category}</p>
               <p className="mt-2 font-bold text-orange-500">${car.price}/day</p>
@@ -256,9 +220,24 @@ const CarDetailPage = () => {
         </div>
       </div>
 
+      {/* ================= TIPS / HIGHLIGHTS ================= */}
+      <div className="mt-16">
+        <h3 className="text-2xl font-bold mb-6">Rental Tips & Highlights</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {tips.map((tip, idx) => (
+            <div key={idx}
+              className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex flex-col items-center justify-center text-center">
+              <div className="text-3xl mb-2">{tip.icon}</div>
+              <p className="text-gray-700 dark:text-zinc-200 font-medium">{tip.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   ) : (
-    <div className="flex items-center justify-center min-h-screen text-gray-500">
+    <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-400">
       Loading car details...
     </div>
   );
