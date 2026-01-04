@@ -362,17 +362,9 @@ function Car3DModel() {
         scene.add(model);
         carModelRef.current = model;
         setIsLoading(false);
-        console.log("3D model loaded - All values synchronized");
-        console.log(`Position: ${position.x}, ${position.y}, ${position.z}`);
-        console.log(`Scale: ${scale.x}, ${scale.y}, ${scale.z}`);
-        console.log(`Camera: ${cameraPos.x}, ${cameraPos.y}, ${cameraPos.z}`);
-        console.log(`Lighting: Ambient=${lighting.ambient}, Main=${lighting.main}, Fill=${lighting.fill}`);
-        console.log(`Material: Metalness=${lighting.metalness}, Roughness=${lighting.roughness}`);
-        console.log(`Rotation: Limit=${rotation.limit}°, Polar=${rotation.minPolar}-${rotation.maxPolar}°`);
       },
       (progress) => {
         const percentComplete = (progress.loaded / progress.total) * 100;
-        console.log(`Loading: ${percentComplete.toFixed(2)}%`);
       },
       (error) => {
         console.error("Error loading 3D model:", error);
