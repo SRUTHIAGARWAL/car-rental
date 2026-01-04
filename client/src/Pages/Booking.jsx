@@ -65,6 +65,117 @@ const isValidDateRange = (start, end) => {
   return new Date(start) < new Date(end);
 };
 
+// Format date to mm/dd/yyyy format
+const formatDateForDisplay = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
+// Parse mm/dd/yyyy to Date object
+const parseDateFromInput = (dateString) => {
+  if (!dateString) return null;
+  const [month, day, year] = dateString.split('/').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+/* ================= Custom Date Input Component ================= */
+const DateInput = ({ label, value, onChange, minDate, error, placeholder = "mm/dd/yyyy" }) => {
+  const [displayValue, setDisplayValue] = useState("");
+  
+  useEffect(() => {
+    if (value) {
+      setDisplayValue(formatDateForDisplay(value));
+    } else {
+      setDisplayValue("");
+    }
+  }, [value]);
+
+  const handleChange = (e) => {
+    const input = e.target.value;
+    setDisplayValue(input);
+    
+    // Only validate if we have a complete date
+    if (input.length === 10 && input.includes('/')) {
+      const date = parseDateFromInput(input);
+      if (date && !isNaN(date.getTime())) {
+        onChange(date.toISOString());
+      }
+    } else if (input === "") {
+      onChange("");
+    }
+  };
+
+  const handleBlur = () => {
+    if (displayValue && displayValue.includes('/')) {
+      const date = parseDateFromInput(displayValue);
+      if (date && !isNaN(date.getTime())) {
+        // Format it properly
+        const formatted = formatDateForDisplay(date.toISOString());
+        setDisplayValue(formatted);
+        onChange(date.toISOString());
+      }
+    }
+  };
+
+  // Create a date string for the HTML date picker
+  const getHTMLDateValue = () => {
+    if (!value) return "";
+    const date = new Date(value);
+    return date.toISOString().split('T')[0];
+  };
+
+  const handleHTMLDateChange = (e) => {
+    if (e.target.value) {
+      const date = new Date(e.target.value);
+      onChange(date.toISOString());
+    } else {
+      onChange("");
+    }
+  };
+
+  return (
+    <div className="flex flex-col">
+      <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          value={displayValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          className={`p-3 bg-white dark:bg-zinc-800 border ${
+            error ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-900' : 'border-gray-200 dark:border-zinc-700'
+          } rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all w-full`}
+        />
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <label htmlFor={`${label.replace(/\s+/g, '-')}-native`} className="cursor-pointer">
+            <svg className="w-5 h-5 text-gray-400 hover:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </label>
+          <input
+            id={`${label.replace(/\s+/g, '-')}-native`}
+            type="date"
+            value={getHTMLDateValue()}
+            onChange={handleHTMLDateChange}
+            min={minDate ? new Date(minDate).toISOString().split('T')[0] : undefined}
+            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+          />
+        </div>
+      </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        Format: {placeholder}
+      </div>
+    </div>
+  );
+};
+
 /* ================= Map Component ================= */
 const BookingMap = ({ location, setLocation }) => {
   const mapRef = useRef(null);
@@ -149,17 +260,17 @@ const BookingMap = ({ location, setLocation }) => {
           ref={searchRef}
           placeholder="Search location..."
           onChange={handleSearchChange}
-          className="w-full p-2 border border-gray-300 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 dark:placeholder-zinc-500 outline-none"
+          className="w-full p-3 border border-gray-300 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 dark:placeholder-zinc-500 outline-none focus:ring-2 focus:ring-orange-500"
         />
         {suggestions.length > 0 && (
           <ul
             ref={suggestionsRef}
-            className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-b-lg max-h-40 overflow-auto z-50"
+            className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-b-lg max-h-40 overflow-auto z-50 shadow-lg"
           >
             {suggestions.map((s, idx) => (
               <li
                 key={idx}
-                className="p-2 hover:bg-orange-500 hover:text-white cursor-pointer transition"
+                className="p-3 hover:bg-orange-500 hover:text-white cursor-pointer transition border-b border-gray-100 dark:border-zinc-700 last:border-b-0"
                 onClick={() => handleSelectSuggestion(s)}
               >
                 {s.display_name}
@@ -179,7 +290,7 @@ const BookingMap = ({ location, setLocation }) => {
         value={location}
         readOnly
         placeholder="Selected location will appear here"
-        className="mt-2 p-2 border border-gray-300 dark:border-zinc-700 rounded w-full text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 dark:placeholder-zinc-500 resize-none overflow-auto"
+        className="mt-3 p-3 border border-gray-300 dark:border-zinc-700 rounded-lg w-full text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 dark:placeholder-zinc-500 resize-none overflow-auto focus:ring-2 focus:ring-orange-500"
         rows={2}
       />
     </div>
@@ -211,8 +322,13 @@ const CarDetailPage = () => {
 
     // Validate dates
     if (updatedDetails.pickUpDate && updatedDetails.dropOffDate) {
-      if (new Date(updatedDetails.dropOffDate) <= new Date(updatedDetails.pickUpDate)) {
+      const pickUp = new Date(updatedDetails.pickUpDate);
+      const dropOff = new Date(updatedDetails.dropOffDate);
+      
+      if (dropOff <= pickUp) {
         setDateError("❌ Drop-off date must be after pick-up date");
+      } else if ((dropOff - pickUp) < 86400000) { // Less than 1 day (24 hours)
+        setDateError("❌ Minimum rental period is 1 day");
       } else {
         setDateError("");
       }
@@ -240,7 +356,7 @@ const CarDetailPage = () => {
     }
 
     if (!rentalDetails.location) {
-      alert("Please select a location on the map!");
+      alert("⚠️ Please select a location on the map!");
       return;
     }
 
@@ -250,9 +366,15 @@ const CarDetailPage = () => {
 
     setIsSubmitting(true);
     
+    // Calculate total price
+    const pickUp = new Date(rentalDetails.pickUpDate);
+    const dropOff = new Date(rentalDetails.dropOffDate);
+    const days = Math.ceil((dropOff - pickUp) / (1000 * 60 * 60 * 24));
+    const totalPrice = days * selectedCar.price;
+    
     // Simulate API call
     setTimeout(() => {
-      alert(`✅ Booking confirmed!\n\nCar: ${selectedCar.name}\nPick-up: ${new Date(rentalDetails.pickUpDate).toLocaleString()}\nDrop-off: ${new Date(rentalDetails.dropOffDate).toLocaleString()}\nLocation: ${rentalDetails.location}`);
+      alert(`✅ Booking Confirmed!\n\n🚗 Car: ${selectedCar.name}\n📅 Pick-up: ${formatDateForDisplay(rentalDetails.pickUpDate)}\n📅 Drop-off: ${formatDateForDisplay(rentalDetails.dropOffDate)}\n📍 Location: ${rentalDetails.location}\n💰 Total: $${totalPrice} (${days} days × $${selectedCar.price}/day)`);
       setIsSubmitting(false);
       
       // Reset form (optional)
@@ -262,15 +384,15 @@ const CarDetailPage = () => {
         location: "",
       });
       setDateError("");
-    }, 1000);
+    }, 1500);
   };
 
   const getMinDropOffDate = () => {
     if (!rentalDetails.pickUpDate) return "";
     const pickUpDate = new Date(rentalDetails.pickUpDate);
-    // Add minimum 1 hour gap for drop-off
-    pickUpDate.setHours(pickUpDate.getHours() + 1);
-    return pickUpDate.toISOString().slice(0, 16);
+    // Add minimum 1 day gap for drop-off
+    pickUpDate.setDate(pickUpDate.getDate() + 1);
+    return pickUpDate.toISOString();
   };
 
   const isFormValid = () => {
@@ -292,13 +414,13 @@ const CarDetailPage = () => {
           <img
             src={selectedCar.image}
             alt={selectedCar.name}
-            className="w-full max-w-xl h-80 object-cover rounded-xl shadow-md hover:shadow-xl hover:scale-[1.03] hover:brightness-105 transition-all duration-500"
+            className="w-full max-w-xl h-80 object-cover rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.02] hover:brightness-105 transition-all duration-500"
           />
         </div>
 
         {/* Right: Form + Map */}
-        <div className="w-full md:w-1/2 bg-white dark:bg-zinc-900 shadow-xl rounded-xl p-8 transition-colors">
-          <h2 className="text-3xl font-bold mb-2">{selectedCar.name}</h2>
+        <div className="w-full md:w-1/2 bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl p-8 transition-colors">
+          <h2 className="text-3xl font-bold mb-2 text-gray-800 dark:text-white">{selectedCar.name}</h2>
           <p className="text-xl text-gray-600 dark:text-zinc-400 mb-4">
             {selectedCar.category} —{" "}
             <span className="text-orange-500 font-bold">${selectedCar.price}/day</span>
@@ -332,60 +454,55 @@ const CarDetailPage = () => {
           </div>
 
           {/* Features */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-              <div className="text-xl mb-1">🪑</div>
-              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.seats} seats</span>
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-zinc-800 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition">
+              <div className="text-2xl mb-2">🪑</div>
+              <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">{selectedCar.features.seats} seats</span>
             </div>
-            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-              <div className="text-xl mb-1">🧳</div>
-              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.luggage} luggage</span>
+            <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-zinc-800 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition">
+              <div className="text-2xl mb-2">🧳</div>
+              <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">{selectedCar.features.luggage} luggage</span>
             </div>
-            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-              <div className="text-xl mb-1">⛽</div>
-              <span className="text-xs text-gray-500 dark:text-zinc-400">{selectedCar.features.fuel} fuel</span>
+            <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-zinc-800 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition">
+              <div className="text-2xl mb-2">⛽</div>
+              <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">{selectedCar.features.fuel} fuel</span>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Pick-up Date</label>
-                <input
-                  type="datetime-local"
-                  name="pickUpDate"
-                  value={rentalDetails.pickUpDate}
-                  onChange={handleChange}
-                  min={new Date().toISOString().slice(0, 16)}
-                  className="p-3 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                  required
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm font-medium text-gray-600 dark:text-zinc-400 mb-1">Drop-off Date</label>
-                <input
-                  type="datetime-local"
-                  name="dropOffDate"
-                  value={rentalDetails.dropOffDate}
-                  onChange={handleChange}
-                  min={getMinDropOffDate()}
-                  className={`p-3 bg-white dark:bg-zinc-800 border ${
-                    dateError ? 'border-red-500' : 'border-gray-200 dark:border-zinc-700'
-                  } rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all`}
-                  required
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DateInput
+                label="Pick-up Date"
+                value={rentalDetails.pickUpDate}
+                onChange={(value) => handleDateChange("pickUpDate", value)}
+                minDate={new Date().toISOString()}
+                placeholder="mm/dd/yyyy"
+              />
+              <DateInput
+                label="Drop-off Date"
+                value={rentalDetails.dropOffDate}
+                onChange={(value) => handleDateChange("dropOffDate", value)}
+                minDate={getMinDropOffDate()}
+                error={dateError}
+                placeholder="mm/dd/yyyy"
+              />
             </div>
 
-            {/* Date Error Message */}
+            {/* Date Error Message - More Prominent */}
             {dateError && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg animate-pulse">
-                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <div className="p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 rounded-r-lg animate-pulse">
+                <div className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium">{dateError}</span>
+                  <div>
+                    <h4 className="font-bold text-red-700 dark:text-red-300">Invalid Date Selection</h4>
+                    <p className="text-red-600 dark:text-red-400 mt-1">{dateError}</p>
+                    <p className="text-sm text-red-500 dark:text-red-400/80 mt-2">
+                      ⚠️ Please select a drop-off date that is <strong>after</strong> the pick-up date (minimum 1 day).
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -400,32 +517,41 @@ const CarDetailPage = () => {
             <button
               type="submit"
               disabled={!isFormValid() || isSubmitting}
-              className={`mt-4 w-full py-4 font-bold rounded-lg shadow-lg transition-all transform ${
+              className={`mt-2 w-full py-4 font-bold rounded-xl shadow-lg transition-all transform ${
                 isFormValid() && !isSubmitting
-                  ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/30 hover:shadow-orange-500/50 active:scale-95 text-white'
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-500/30 hover:shadow-orange-500/50 active:scale-[0.98] text-white'
                   : 'bg-gray-300 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400 cursor-not-allowed'
               }`}
             >
               {isSubmitting ? (
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-3">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Processing...
+                  Processing Booking...
                 </div>
               ) : (
-                isFormValid() ? 'Confirm Booking Now' : 'Fill All Fields to Book'
+                isFormValid() ? '🚗 Confirm Booking Now' : 'Fill All Fields to Book'
               )}
             </button>
 
             {/* Validation Summary */}
-            <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-zinc-400">
-              <div className={`flex items-center gap-2 ${rentalDetails.pickUpDate ? 'text-green-600' : ''}`}>
-                {rentalDetails.pickUpDate ? '✓' : '○'} Pick-up date selected
+            <div className="mt-4 space-y-3 text-sm">
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${rentalDetails.pickUpDate ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${rentalDetails.pickUpDate ? 'bg-green-500 text-white' : 'bg-gray-300 dark:bg-zinc-700'}`}>
+                  {rentalDetails.pickUpDate ? '✓' : '○'}
+                </div>
+                <span>Pick-up date selected: {rentalDetails.pickUpDate ? formatDateForDisplay(rentalDetails.pickUpDate) : 'Not selected'}</span>
               </div>
-              <div className={`flex items-center gap-2 ${rentalDetails.dropOffDate && !dateError ? 'text-green-600' : ''}`}>
-                {rentalDetails.dropOffDate && !dateError ? '✓' : '○'} Valid drop-off date
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${rentalDetails.dropOffDate && !dateError ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${rentalDetails.dropOffDate && !dateError ? 'bg-green-500 text-white' : 'bg-gray-300 dark:bg-zinc-700'}`}>
+                  {rentalDetails.dropOffDate && !dateError ? '✓' : '○'}
+                </div>
+                <span>Drop-off date: {rentalDetails.dropOffDate ? formatDateForDisplay(rentalDetails.dropOffDate) : 'Not selected'} {dateError && <span className="text-red-500">- Invalid</span>}</span>
               </div>
-              <div className={`flex items-center gap-2 ${rentalDetails.location ? 'text-green-600' : ''}`}>
-                {rentalDetails.location ? '✓' : '○'} Location selected
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${rentalDetails.location ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${rentalDetails.location ? 'bg-green-500 text-white' : 'bg-gray-300 dark:bg-zinc-700'}`}>
+                  {rentalDetails.location ? '✓' : '○'}
+                </div>
+                <span>Location selected</span>
               </div>
             </div>
           </form>
@@ -434,21 +560,21 @@ const CarDetailPage = () => {
 
       {/* More Cars */}
       <div className="mt-16">
-        <h3 className="text-2xl font-bold mb-6">More Cars You May Like</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">More Cars You May Like</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {relatedCars.map((car) => (
             <div
               key={car.id}
               onClick={() => navigate(`/booking/${car.id}`)}
-              className="p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all duration-300"
+              className="group p-5 rounded-xl bg-white dark:bg-zinc-900 shadow-lg hover:shadow-2xl hover:scale-[1.02] cursor-pointer transition-all duration-300 border border-gray-100 dark:border-zinc-800"
             >
               <img
                 src={car.image}
                 alt={car.name}
-                className="w-full h-40 object-cover rounded-lg mb-4"
+                className="w-full h-40 object-cover rounded-lg mb-4 group-hover:brightness-110 transition"
               />
-              <h4 className="font-semibold">{car.name}</h4>
-              <p className="text-sm text-gray-500">{car.category}</p>
+              <h4 className="font-semibold text-gray-800 dark:text-white">{car.name}</h4>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">{car.category}</p>
               <p className="mt-2 font-bold text-orange-500">${car.price}/day</p>
             </div>
           ))}
@@ -457,14 +583,14 @@ const CarDetailPage = () => {
 
       {/* Tips */}
       <div className="mt-16">
-        <h3 className="text-2xl font-bold mb-6">Rental Tips & Highlights</h3>
+        <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Rental Tips & Highlights</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tips.map((tip, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex flex-col items-center justify-center text-center"
+              className="p-5 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-zinc-800 dark:to-zinc-900 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-100 dark:border-zinc-700 flex flex-col items-center justify-center text-center"
             >
-              <div className="text-3xl mb-2">{tip.icon}</div>
+              <div className="text-3xl mb-3">{tip.icon}</div>
               <p className="text-gray-700 dark:text-zinc-200 font-medium">{tip.text}</p>
             </div>
           ))}
@@ -473,7 +599,10 @@ const CarDetailPage = () => {
     </div>
   ) : (
     <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-zinc-400">
-      Loading car details...
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-lg">Loading car details...</p>
+      </div>
     </div>
   );
 };
