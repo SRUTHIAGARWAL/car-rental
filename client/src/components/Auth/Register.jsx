@@ -41,7 +41,7 @@ useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     if (user) {
       setUser(user);
-      navigate("/booking/1", { replace: true });
+      navigate("/profile");
     }
   });
   return () => unsubscribe();
