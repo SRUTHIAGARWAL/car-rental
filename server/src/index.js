@@ -1,5 +1,6 @@
 import app from "./server.js";
 import Env from "./env/env.js";
+import mongoose from "mongoose";
 
 const PORT = Env.PORT || 5000;
 
@@ -11,18 +12,23 @@ const server = app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received: closing HTTP server");
-  server.close(() => {
-    console.log("HTTP server closed");
-    process.exit(0);
-  });
-});
+const shutdown = async (signal) => {
+  console.log(`${signal} received: shutting down gracefully`);
 
-process.on("SIGINT", () => {
-  console.log("SIGINT signal received: closing HTTP server");
-  server.close(() => {
-    console.log("HTTP server closed");
-    process.exit(0);
+  server.close(async () => {
+    console.log("🛑 HTTP server closed");
+
+    try {
+      await mongoose.connection.close();
+      console.log("🛑 MongoDB connection closed");
+      process.exit(0);
+    } catch (err) {
+      console.error("❌ Error closing MongoDB connection", err);
+      process.exit(1);
+    }
   });
-});
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
