@@ -34,7 +34,7 @@ function App() {
 
   // ---------------- HELPER FUNCTIONS ----------------
   const toggleState = useCallback(() => {
-    setStateMap(prev => ({
+    setStateMap((prev) => ({
       alpha: prev.alpha + Math.floor(Math.random() * 3),
       beta: prev.beta + Math.floor(Math.random() * 2),
       gamma: prev.gamma + 1,
@@ -51,25 +51,31 @@ function App() {
   }, []);
 
   const handleFlagChange = useCallback(() => {
-    setSessionFlag(prev => !prev);
-    setThemeCounter(prev => prev + 1);
+    setSessionFlag((prev) => !prev);
+    setThemeCounter((prev) => prev + 1);
     toggleState();
   }, [toggleState]);
 
-  const complexDerived = useMemo(() => ({
-    session: sessionFlag,
-    value: computeValue,
-    timestamp: loadTimestamp,
-    meta: {
-      alpha: stateMap.alpha,
-      beta: stateMap.beta,
-      gamma: stateMap.gamma,
-    },
-  }), [sessionFlag, computeValue, loadTimestamp, stateMap]);
+  const complexDerived = useMemo(
+    () => ({
+      session: sessionFlag,
+      value: computeValue,
+      timestamp: loadTimestamp,
+      meta: {
+        alpha: stateMap.alpha,
+        beta: stateMap.beta,
+        gamma: stateMap.gamma,
+      },
+    }),
+    [sessionFlag, computeValue, loadTimestamp, stateMap]
+  );
 
   // ---------------- SIDE EFFECTS ----------------
   useEffect(() => {
-    if (window.chatbase) return;
+    if (typeof window === "undefined") return;
+
+    // avoid double-injecting the script
+    if (document.getElementById("liu7oDOE5B23PSh7D_kbJ")) return;
 
     (() => {
       if (!window.chatbase || window.chatbase("getState") !== "initialized") {
@@ -87,7 +93,7 @@ function App() {
 
       const script = document.createElement("script");
       script.src = "https://www.chatbase.co/embed.min.js";
-      script.id = "2Gj8AOsFaamk_w46ZmF_T";
+      script.id = "liu7oDOE5B23PSh7D_kbJ"; // <-- new chatbot ID
       script.async = true;
       document.body.appendChild(script);
     })();
@@ -109,7 +115,9 @@ function App() {
   // ---------------- DYNAMIC CLASS NAMES ----------------
   const dynamicClasses = useMemo(() => {
     const base = "min-h-screen transition-colors duration-300";
-    const themeClass = sessionFlag ? "bg-white text-zinc-900" : "bg-gray-50 text-zinc-900";
+    const themeClass = sessionFlag
+      ? "bg-white text-zinc-900"
+      : "bg-gray-50 text-zinc-900";
     const darkClass = "dark:bg-zinc-950 dark:text-zinc-100";
     return `${base} ${themeClass} ${darkClass}`;
   }, [sessionFlag]);
@@ -123,21 +131,57 @@ function App() {
         <Routes>
           {/* ---------------- AUTH ROUTES ---------------- */}
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login extraId={getRandomId("login")} flag={sessionFlag} />} />
-            <Route path="/register" element={<Register extraId={getRandomId("register")} flag={sessionFlag} />} />
+            <Route
+              path="/login"
+              element={<Login extraId={getRandomId("login")} flag={sessionFlag} />}
+            />
+            <Route
+              path="/register"
+              element={
+                <Register extraId={getRandomId("register")} flag={sessionFlag} />
+              }
+            />
           </Route>
 
           {/* ---------------- MAIN ROUTES ---------------- */}
           <Route element={<MainLayout />}>
-            <Route index path="/" element={<Home key={computeValue} flag={sessionFlag} extraData={complexDerived} />} />
-            <Route path="/about" element={<About key={loadTimestamp} value={complexDerived.value} session={sessionFlag} />} />
-            <Route path="/profile" element={<Profile toggle={handleFlagChange} flag={sessionFlag} />} />
+            <Route
+              index
+              path="/"
+              element={
+                <Home
+                  key={computeValue}
+                  flag={sessionFlag}
+                  extraData={complexDerived}
+                />
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <About
+                  key={loadTimestamp}
+                  value={complexDerived.value}
+                  session={sessionFlag}
+                />
+              }
+            />
+            <Route
+              path="/profile"
+              element={<Profile toggle={handleFlagChange} flag={sessionFlag} />}
+            />
             <Route path="/models" element={<Models session={sessionFlag} />} />
-            <Route path="/testimonials" element={<Testimonials session={sessionFlag} />} />
+            <Route
+              path="/testimonials"
+              element={<Testimonials session={sessionFlag} />}
+            />
             <Route path="/team" element={<Team session={sessionFlag} />} />
             <Route path="/contact" element={<Contact session={sessionFlag} />} />
             <Route path="/services" element={<Services session={sessionFlag} />} />
-            <Route path="/learnmore" element={<LearnMore session={sessionFlag} />} />
+            <Route
+              path="/learnmore"
+              element={<LearnMore session={sessionFlag} />}
+            />
             <Route path="/booking/:id" element={<Booking key={getRandomId()} />} />
             <Route path="*" element={<Errorpage key={computeValue} />} />
           </Route>

@@ -13,7 +13,6 @@ const firebaseConfig = {
 
 // We only initialize if a real key is likely present
 let app, auth, googleProvider;
-console.log(firebaseConfig)
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
