@@ -29,6 +29,9 @@ function App() {
   const [themeCounter, setThemeCounter] = useState(0);
   const [stateMap, setStateMap] = useState({ alpha: 1, beta: 2, gamma: 3 });
   const [loadTimestamp, setLoadTimestamp] = useState(Date.now());
+  
+  // New state to track screen size for MouseTrail
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
 
   const refContainer = useRef({ mounted: false, count: 0 });
 
@@ -68,6 +71,17 @@ function App() {
   }), [sessionFlag, computeValue, loadTimestamp, stateMap]);
 
   // ---------------- SIDE EFFECTS ----------------
+  
+  // Handle Screen Resize for MouseTrail
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     if (window.chatbase) return;
 
@@ -118,7 +132,12 @@ function App() {
   return (
     <div className={dynamicClasses}>
       <ScrollToTop />
-      <MouseTrail strokeColor="#F97316" lineWidthStart={30} />
+      
+      {/* Conditionally render MouseTrail only if screen is large enough */}
+      {isLargeScreen && (
+        <MouseTrail strokeColor="#F97316" lineWidthStart={30} />
+      )}
+
       <AnimatePresence mode="wait">
         <Routes>
           {/* ---------------- AUTH ROUTES ---------------- */}

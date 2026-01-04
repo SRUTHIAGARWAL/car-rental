@@ -244,17 +244,25 @@ function Car3DModel() {
     camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
     cameraRef.current = camera;
 
-    // Renderer setup with shadows
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-    containerRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+    // Renderer setup with shadows - WRAPPED IN TRY/CATCH TO PREVENT CRASH
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      containerRef.current.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
+    } catch (e) {
+      console.error("WebGL is not supported or disabled:", e);
+      setHasError(true);
+      setIsLoading(false);
+      return; // Exit useEffect to prevent further errors
+    }
 
     // Lights - USE STATE VALUES
     const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, lighting.ambient);
