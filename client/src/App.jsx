@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-
+import UserGuide from "./Pages/UserGuide";
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Models from "./Pages/Models";
@@ -160,6 +160,8 @@ function App() {
                 <Register extraId={getRandomId("register")} flag={sessionFlag} />
               }
             />
+             <Route path="/guide" element={<UserGuide />} />
+
           </Route>
 
           {/* ---------------- MAIN ROUTES ---------------- */}

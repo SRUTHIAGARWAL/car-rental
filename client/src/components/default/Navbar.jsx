@@ -66,6 +66,8 @@ const Navbar = () => {
     { path: "/testimonials", label: "Testimonials" },
     { path: "/team", label: "Our Team" },
     { path: "/contact", label: "Contact" },
+    { path: "/guide", label: "User Guide" },
+
   ];
 
   return (
