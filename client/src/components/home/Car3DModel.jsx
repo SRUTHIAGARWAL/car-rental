@@ -208,10 +208,10 @@ function Car3DModel() {
   const animationIdRef = useRef(null);
   const lightsRef = useRef({});
 
-  // Control states - SYNCHRONIZED with actual model - USER'S PERFECT SETTINGS
-  const [position, setPosition] = useState({ x: 0.5, y: 0, z: 0 });
+  // Control states - SYNCHRONIZED with actual model - USER'S PERFECT SETTINGS (Adjusted for Center)
+  const [position, setPosition] = useState({ x: 0, y: 0, z: 0 }); // Centered X
   const [scale, setScale] = useState({ x: 230, y: 265, z: 190 });
-  const [cameraPos, setCameraPos] = useState({ x: 3.6, y: 5.3, z: 9.1 });
+  const [cameraPos, setCameraPos] = useState({ x: 4.5, y: 4.5, z: 9.5 }); // Adjusted for better perspective
   const [lighting, setLighting] = useState({ 
     ambient: 2.1,      // Hemisphere light intensity
     main: 2.8,         // Main directional light
