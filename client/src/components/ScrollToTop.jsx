@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+//Scroll to top button
 const ScrollToTop = () => {
     const { pathname } = useLocation();
     const [isVisible, setIsVisible] = useState(false);
