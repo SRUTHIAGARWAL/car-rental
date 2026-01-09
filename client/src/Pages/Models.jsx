@@ -337,58 +337,63 @@ const handleSort = useCallback((e) => {
         {isLoading ? (
           <SkeletonFilterBar />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Search car models..."
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-zinc-900 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-12">
+              {/* Search */}
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  placeholder="Search car models..."
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-zinc-900 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
+                />
+              </div>
 
-            <div>
-              <label className="text-sm flex items-center gap-2 mb-1 text-gray-600 dark:text-zinc-400">
-                <Filter className="w-4 h-4" />
-                Max Price (${maxPrice})
-              </label>
-              <input
-                type="range"
-                min={PRICE_CONFIG.MIN}
-                max={PRICE_CONFIG.MAX}
-                step={PRICE_CONFIG.STEP}
-                value={maxPrice}
-                onChange={handlePrice}
-                className="w-full h-2 bg-gray-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-500"
-              />
-            </div>
+              {/* Price */}
+              <div>
+                <label className="text-sm flex items-center gap-2 mb-1 text-gray-600 dark:text-zinc-400">
+                  <Filter className="w-4 h-4" />
+                  Max Price (${maxPrice})
+                </label>
+                <input
+                  type="range"
+                  min={PRICE_CONFIG.MIN}
+                  max={PRICE_CONFIG.MAX}
+                  step={PRICE_CONFIG.STEP}
+                  value={maxPrice}
+                  onChange={handlePrice}
+                  className="w-full h-2 bg-gray-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer
+        [&::-webkit-slider-thumb]:appearance-none
+        [&::-webkit-slider-thumb]:h-4
+        [&::-webkit-slider-thumb]:w-4
+        [&::-webkit-slider-thumb]:rounded-full
+        [&::-webkit-slider-thumb]:bg-orange-500"
+                />
+              </div>
 
-            <select
-              value={fuelType}
-              onChange={handleFuel}
-              className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-900 border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
-            >
-              {FUEL_OPTIONS.map((fuel) => (
-                <option key={fuel}>{fuel}</option>
-              ))}
-            </select>
+              {/* Fuel */}
+              <select
+                value={fuelType}
+                onChange={handleFuel}
+                className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-900 border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
+              >
+                {FUEL_OPTIONS.map((fuel) => (
+                  <option key={fuel}>{fuel}</option>
+                ))}
+              </select>
 
+              {/* Sort */}
               <select
                 value={sortBy}
                 onChange={handleSort}
                 className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-900 border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
               >
                 <option value={SORT_OPTIONS.NONE}>Sort By</option>
-                <option value={SORT_OPTIONS.PRICE_ASC}>
-                  Price: Low to High
-                </option>
-                <option value={SORT_OPTIONS.PRICE_DESC}>
-                  Price: High to Low
-                </option>
+                <option value={SORT_OPTIONS.PRICE_ASC}>Price: Low → High</option>
+                <option value={SORT_OPTIONS.PRICE_DESC}>Price: High → Low</option>
               </select>
+            </div>
 
-          </div>
         )}
 
         <div className="flex justify-end mb-6">
