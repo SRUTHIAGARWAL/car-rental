@@ -48,6 +48,13 @@ const FUEL_OPTIONS = Object.freeze([
   "Electric",
 ]);
 
+const SORT_OPTIONS = Object.freeze({
+  NONE: "none",
+  PRICE_ASC: "price_asc",
+  PRICE_DESC: "price_desc",
+});
+
+
 /* =====================================================
    Dataset
 ===================================================== */
@@ -236,6 +243,8 @@ const EmptyState = () => (
 const Models = () => {
   /* ---------------- State ---------------- */
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState(SORT_OPTIONS.NONE);
+
   const [activeCategory, setActiveCategory] = useState(
     FILTER_DEFAULTS.CATEGORY
   );
@@ -258,6 +267,11 @@ const Models = () => {
   }, []);
 
   /* ---------------- Callbacks ---------------- */
+const handleSort = useCallback((e) => {
+  setSortBy(e.target.value);
+}, []);
+
+
   const handleSearch = useCallback(
     (e) => setSearchTerm(e.target.value),
     []
@@ -280,13 +294,25 @@ const Models = () => {
 
   /* ---------------- Derived Data ---------------- */
   const filteredCars = useMemo(() => {
-    return cars.filter((car) =>
-      bySearch(car, searchTerm) &&
-      byCategory(car, activeCategory) &&
-      byFuel(car, fuelType) &&
-      byPrice(car, maxPrice)
-    );
-  }, [searchTerm, activeCategory, fuelType, maxPrice]);
+  const result = cars.filter((car) =>
+    bySearch(car, searchTerm) &&
+    byCategory(car, activeCategory) &&
+    byFuel(car, fuelType) &&
+    byPrice(car, maxPrice)
+  );
+
+  if (sortBy === SORT_OPTIONS.PRICE_ASC) {
+    return [...result].sort((a, b) => a.price - b.price);
+  }
+
+  if (sortBy === SORT_OPTIONS.PRICE_DESC) {
+    return [...result].sort((a, b) => b.price - a.price);
+  }
+
+  return result;
+}, [searchTerm, activeCategory, fuelType, maxPrice, sortBy]);
+
+
 
   /* ---------------- Render ---------------- */
   return (
@@ -347,8 +373,39 @@ const Models = () => {
                 <option key={fuel}>{fuel}</option>
               ))}
             </select>
+
+              <select
+                value={sortBy}
+                onChange={handleSort}
+                className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-900 border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition"
+              >
+                <option value={SORT_OPTIONS.NONE}>Sort By</option>
+                <option value={SORT_OPTIONS.PRICE_ASC}>
+                  Price: Low to High
+                </option>
+                <option value={SORT_OPTIONS.PRICE_DESC}>
+                  Price: High to Low
+                </option>
+              </select>
+
           </div>
         )}
+
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              setActiveCategory(FILTER_DEFAULTS.CATEGORY);
+              setFuelType(FILTER_DEFAULTS.FUEL);
+              setMaxPrice(FILTER_DEFAULTS.PRICE);
+              setSortBy(SORT_OPTIONS.NONE);
+            }}
+            className="text-sm px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 transition"
+          >
+            Clear Filters
+          </button>
+        </div>
+
 
         {/* CATEGORY FILTERS - Show skeleton while loading */}
         {isLoading ? (
